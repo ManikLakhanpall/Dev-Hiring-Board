@@ -1,18 +1,5 @@
-function getUniqueTags(jobs) {
-  const uniqueTags = new Set();
-
-  jobs.forEach((job) => {
-    (job.tags || []).forEach((tag) => {
-      uniqueTags.add(tag);
-    });
-  });
-
-  return [...uniqueTags].sort();
-}
-
 function renderTagFilters() {
   const container = document.getElementById("tag-filters");
-
   container.innerHTML = "";
 
   const tags = getUniqueTags(jobs);
@@ -43,17 +30,11 @@ function renderTagFilters() {
 }
 
 function filterJobs(jobsToFilter) {
+  if (filters.tags.length === 0) {
+    return jobsToFilter;
+  }
 
-    if (filters.tags.length === 0) {
-        return jobsToFilter;
-    }
-
-    return jobsToFilter.filter(job => {
-
-        return filters.tags.every(tag =>
-            job.tags.includes(tag)
-        );
-
-    });
-
+  return jobsToFilter.filter((job) => {
+    return filters.tags.every((tag) => job.tags.includes(tag));
+  });
 }
