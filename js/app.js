@@ -7,25 +7,29 @@ let filters = {
     sort: "date"
 };
 
-let savedJobs = [];
+let savedJobs = loadSavedJobs();
 let appliedJobs = [];
+let currentTab = "all";
 
 async function init() {
   await fetchJobs();
 
-  renderTagFilters()
+  renderTagFilters();
 
   setupEventListeners();
 
+  setupTabs();
+
   updateJobs();
+
 }
 
 function updateJobs() {
   let filteredJobs = [...jobs];
 
   filteredJobs = searchJobs(filteredJobs);
-
   filteredJobs = filterJobs(filteredJobs)
+  filteredJobs = filterSavedJobs(filteredJobs)
 
   renderJobs(filteredJobs);
 }

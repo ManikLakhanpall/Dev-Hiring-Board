@@ -24,7 +24,10 @@ function createJobCard(job) {
   const card = document.createElement("div");
   card.className = "job-card";
 
-  const salary = job.salary_min && job.salary_max ? `$${job.salary_min} - $${job.salary_max}` : "Salary not specified";
+  const salary =
+    job.salary_min && job.salary_max
+      ? `$${job.salary_min} - $${job.salary_max}`
+      : "Salary not specified";
 
   card.innerHTML = `
         <h2>${job.position}</h2>
@@ -56,13 +59,27 @@ function createJobCard(job) {
 
   const description = document.createElement("div");
 
-  description.className = "description hidden"
-  ;
+  description.className = "description hidden";
   description.innerHTML = job.description;
 
   card.appendChild(description);
 
   const button = card.querySelector(".details-btn");
+
+  const saveButton = document.createElement("button");
+  saveButton.textContent = savedJobs.includes(job.id) ? "Saved" : "Save Now!";
+  card.appendChild(saveButton);
+
+  saveButton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    if (savedJobs.includes(job.id)) {
+        savedJobs = savedJobs.filter(id => id !== job.id);
+    } else {
+        savedJobs.push(job.id);
+    }
+    saveSavedJobs();
+    updateJobs();
+});
 
   button.addEventListener("click", () => {
     description.classList.toggle("hidden");
