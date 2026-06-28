@@ -13,7 +13,7 @@ let appliedJobs = [];
 function updateJobs() {
   let filteredJobs = [...jobs];
 
-  fileteredJobs = searchJobs(filteredJobs);
+  filteredJobs = searchJobs(filteredJobs);
 
   renderJobs(filteredJobs);
 }
