@@ -10,10 +10,22 @@ let filters = {
 let savedJobs = [];
 let appliedJobs = [];
 
+async function init() {
+  await fetchJobs();
+
+  renderTagFilters()
+
+  setupEventListeners();
+
+  updateJobs();
+}
+
 function updateJobs() {
   let filteredJobs = [...jobs];
 
   filteredJobs = searchJobs(filteredJobs);
+
+  filteredJobs = filterJobs(filteredJobs)
 
   renderJobs(filteredJobs);
 }
@@ -29,12 +41,6 @@ function setupEventListeners() {
         updateJobs();
     });
 
-}
-
-async function init() {
-  await fetchJobs();
-  setupEventListeners();
-  updateJobs();
 }
 
 init();
