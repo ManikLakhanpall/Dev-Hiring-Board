@@ -1,8 +1,6 @@
-function renderTagFilters() {
+function renderTagFilters(tags, selectedTags = [], onTagChange) {
   const container = document.getElementById("tag-filters");
   container.innerHTML = "";
-
-  const tags = getUniqueTags(jobs);
 
   tags.forEach((tag) => {
     const label = document.createElement("label");
@@ -10,15 +8,15 @@ function renderTagFilters() {
 
     checkbox.type = "checkbox";
     checkbox.value = tag;
+    checkbox.checked = selectedTags.includes(tag);
 
     checkbox.addEventListener("change", () => {
       const checkedBoxes = document.querySelectorAll(
         "#tag-filters input:checked",
       );
 
-      filters.tags = [...checkedBoxes].map((box) => box.value);
-
-      updateJobs();
+      const nextTags = [...checkedBoxes].map((box) => box.value);
+      onTagChange?.(nextTags);
     });
 
     label.appendChild(checkbox);
@@ -29,12 +27,7 @@ function renderTagFilters() {
   });
 }
 
-function filterJobs(jobsToFilter) {
-  if (filters.tags.length === 0) {
-    return jobsToFilter;
-  }
+window.View = window.View || {};
+const View = window.View;
+View.renderTagFilters = renderTagFilters;
 
-  return jobsToFilter.filter((job) => {
-    return filters.tags.every((tag) => job.tags.includes(tag));
-  });
-}

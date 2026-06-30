@@ -1,9 +1,9 @@
-function searchJobs(jobsToSearch) {
-  if (!filters.search.trim()) {
+function filterBySearch(jobsToSearch, searchValue) {
+  const keyword = (searchValue || "").trim().toLowerCase();
+
+  if (!keyword) {
     return jobsToSearch;
   }
-
-  const keyword = filters.search.toLowerCase();
 
   return jobsToSearch.filter((job) => {
     const title = (job.position || "").toLowerCase();

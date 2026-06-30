@@ -1,4 +1,7 @@
-function renderJobs(jobsToRender) {
+window.View = window.View || {};
+const View = window.View;
+
+function renderJobs(jobsToRender, savedJobs = [], appliedJobs = [], handlers = {}) {
   const jobList = document.getElementById("job-list");
 
   jobList.innerHTML = "";
@@ -15,12 +18,12 @@ function renderJobs(jobsToRender) {
   }
 
   jobsToRender.forEach((job) => {
-    const card = createJobCard(job);
+    const card = createJobCard(job, savedJobs, appliedJobs, handlers);
     jobList.appendChild(card);
   });
 }
 
-function createJobCard(job) {
+function createJobCard(job, savedJobs = [], appliedJobs = [], handlers = {}) {
   const card = document.createElement("div");
   card.className = "job-card";
 
@@ -31,23 +34,16 @@ function createJobCard(job) {
 
   card.innerHTML = `
     <h2>${job.position}</h2>
-
     <p><strong>${job.company}</strong></p>
-
     <p>${job.location || "Remote"}</p>
-
     <p>${salary}</p>
-
     <div class="tags"></div>
-
-    <button class="details-btn">
-      View Details
-    </button>
+    <button class="details-btn">View Details</button>
   `;
 
   const tagsContainer = card.querySelector(".tags");
 
-  job.tags.forEach((tag) => {
+  (job.tags || []).forEach((tag) => {
     const badge = document.createElement("span");
 
     badge.className = "tag";
@@ -57,10 +53,8 @@ function createJobCard(job) {
   });
 
   const description = document.createElement("div");
-
   description.className = "description hidden";
   description.innerHTML = job.description;
-
   card.appendChild(description);
 
   const button = card.querySelector(".details-btn");
@@ -79,16 +73,12 @@ function createJobCard(job) {
 
   saveButton.addEventListener("click", (e) => {
     e.stopPropagation();
-    savedJobs = toggleItem(savedJobs, job.id);
-    saveSavedJobs(savedJobs);
-    updateJobs();
+    handlers.onSave?.(job.id);
   });
 
   applyButton.addEventListener("click", (e) => {
     e.stopPropagation();
-    appliedJobs = toggleItem(appliedJobs, job.id);
-    saveAppliedJobs(appliedJobs);
-    updateJobs();
+    handlers.onApply?.(job.id);
   });
 
   button.addEventListener("click", () => {
@@ -97,3 +87,6 @@ function createJobCard(job) {
 
   return card;
 }
+
+View.renderJobs = renderJobs;
+

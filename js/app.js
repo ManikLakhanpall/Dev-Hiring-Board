@@ -1,30 +1,75 @@
-async function init() {
-  await fetchJobs();
+const Controller = {
+  async init() {
+    try {
+      const jobs = await JobService.fetchJobs();
+      Model.setJobs(jobs);
+      this.render();
+      this.setupEventListeners();
+      View.setupTabs(this.handleTabChange.bind(this));
+    } catch (error) {
+      console.error("Failed to initialize app:", error);
+    }
+  },
 
-  renderTagFilters();
-  setupEventListeners();
-  setupTabs();
-  updateJobs();
-}
+  setupEventListeners() {
+    const searchInput = document.getElementById("search-input");
+    const clearButton = document.getElementById("clear-filters");
 
-function updateJobs() {
-  let filteredJobs = [...jobs];
+    searchInput.addEventListener("input", (e) => {
+      this.handleSearchChange(e.target.value);
+    });
 
-  filteredJobs = searchJobs(filteredJobs);
-  filteredJobs = filterJobs(filteredJobs);
-  filteredJobs = filterSavedJobs(filteredJobs);
-  filteredJobs = filterAppliedJobs(filteredJobs);
+    clearButton?.addEventListener("click", () => {
+      this.handleSearchChange("");
+      Model.setTagFilters([]);
+      Model.setCurrentTab("all");
+      this.render();
+    });
+  },
 
-  renderJobs(filteredJobs);
-}
+  handleSearchChange(value) {
+    Model.setSearch(value);
+    this.render();
+  },
 
-function setupEventListeners() {
-  const searchInput = document.getElementById("search-input");
+  handleTagChange(selectedTags) {
+    Model.setTagFilters(selectedTags);
+    this.render();
+  },
 
-  searchInput.addEventListener("input", (e) => {
-    filters.search = e.target.value;
-    updateJobs();
-  });
-}
+  handleTabChange(tab) {
+    Model.setCurrentTab(tab);
+    this.render();
+  },
 
-init();
+  handleSaveJob(jobId) {
+    Model.toggleSavedJob(jobId);
+    this.render();
+  },
+
+  handleApplyJob(jobId) {
+    Model.toggleAppliedJob(jobId);
+    this.render();
+  },
+
+  render() {
+    const currentState = Model.getState();
+    const visibleJobs = Model.getVisibleJobs();
+
+    View.renderJobs(visibleJobs, currentState.savedJobs, currentState.appliedJobs, {
+      onSave: this.handleSaveJob.bind(this),
+      onApply: this.handleApplyJob.bind(this),
+    });
+
+    View.renderTagFilters(
+      Model.getTagOptions(),
+      currentState.filters.tags,
+      this.handleTagChange.bind(this),
+    );
+
+    View.updateActiveTab(currentState.currentTab);
+  },
+};
+
+window.Controller = Controller;
+Controller.init();

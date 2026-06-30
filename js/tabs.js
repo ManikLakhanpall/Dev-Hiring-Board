@@ -1,30 +1,23 @@
-function filterSavedJobs(jobsToFilter) {
-  if (currentTab !== "saved") {
-    return jobsToFilter;
-  }
-
-  return jobsToFilter.filter((job) => savedJobs.includes(job.id));
-}
-
-function filterAppliedJobs(jobsToFilter) {
-  if (currentTab !== "applied") {
-    return jobsToFilter;
-  }
-
-  return jobsToFilter.filter((job) => appliedJobs.includes(job.id));
-}
-
-function setupTabs() {
+function setupTabs(onTabChange) {
   const buttons = document.querySelectorAll("#tabs button");
 
   buttons.forEach((button) => {
     button.addEventListener("click", () => {
-      currentTab = button.dataset.tab;
-
-      buttons.forEach((btn) => btn.classList.remove("active-tab"));
-      button.classList.add("active-tab");
-
-      updateJobs();
+      onTabChange?.(button.dataset.tab);
     });
   });
 }
+
+function updateActiveTab(currentTab) {
+  const buttons = document.querySelectorAll("#tabs button");
+
+  buttons.forEach((button) => {
+    button.classList.toggle("active-tab", button.dataset.tab === currentTab);
+  });
+}
+
+window.View = window.View || {};
+const View = window.View;
+View.setupTabs = setupTabs;
+View.updateActiveTab = updateActiveTab;
+

@@ -1,23 +1,52 @@
 .job-card {
-    background: white;
-    padding: 16px;
-    border-radius: 10px;
-    box-shadow: 0 2px 6px rgba(0,0,0,.1);
+    background: var(--surface);
+    padding: 18px;
+    border-radius: 18px;
+    border: 1px solid var(--border);
+    box-shadow: var(--shadow-sm);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.job-card h2 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+}
+
+.job-card p {
+    margin: 0;
+    color: var(--muted);
+}
+
+.job-card strong {
+    color: var(--text);
 }
 
 .tags {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin: 12px 0;
+    margin: 6px 0 4px;
 }
 
 .tag {
-    background: #e8f0fe;
-    color: #1a73e8;
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 12px;
+    background: #e0e7ff;
+    color: var(--accent-strong);
+    padding: 5px 10px;
+    border-radius: 999px;
+    font-size: 0.78rem;
+    font-weight: 600;
+}
+
+.description {
+    padding: 10px 12px;
+    border-radius: 12px;
+    background: var(--surface-alt);
+    color: var(--muted);
+    font-size: 0.95rem;
+    border: 1px solid var(--border);
 }
 
 .hidden {
@@ -25,13 +54,49 @@
 }
 
 .empty-state {
-    background: white;
-    padding: 30px;
-    border-radius: 10px;
+    background: var(--surface);
+    padding: 34px 24px;
+    border-radius: 20px;
     text-align: center;
+    border: 1px dashed var(--border);
+    box-shadow: var(--shadow-sm);
+}
+
+.empty-state h2 {
+    margin: 0 0 8px;
+    font-size: 1.2rem;
+}
+
+.empty-state p {
+    margin: 0;
+    color: var(--muted);
 }
 
 .active-tab {
-    background: royalblue;
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+    color: white;
+    box-shadow: 0 10px 20px rgba(79, 70, 229, 0.22);
+}
+
+.details-btn,
+.save-btn,
+.apply-btn {
+    padding: 9px 12px;
+    font-size: 0.92rem;
+}
+
+.details-btn {
+    background: #eef2ff;
+    color: var(--accent);
+    align-self: flex-start;
+}
+
+.save-btn {
+    background: #ecfeef;
+    color: var(--success);
+}
+
+.apply-btn {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
     color: white;
 }
