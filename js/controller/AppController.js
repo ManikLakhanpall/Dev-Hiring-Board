@@ -45,11 +45,31 @@ function _handleTabChange(tab) {
 function _handleSaveJob(jobId) {
   JobModel.toggleSavedJob(jobId);
   _render();
+  const s = JobModel.getState();
+  JobView.updateModalActionButtons(s.savedJobs, s.appliedJobs);
 }
 
 function _handleApplyJob(jobId) {
   JobModel.toggleAppliedJob(jobId);
   _render();
+  const s = JobModel.getState();
+  JobView.updateModalActionButtons(s.savedJobs, s.appliedJobs);
+}
+
+function _handleViewDetails(job) {
+  const currentState = JobModel.getState();
+  JobView.showJobModal(job, currentState.savedJobs, currentState.appliedJobs, {
+    onSave: (id) => {
+      _handleSaveJob(id);
+      const s = JobModel.getState();
+      JobView.updateModalActionButtons(s.savedJobs, s.appliedJobs);
+    },
+    onApply: (id) => {
+      _handleApplyJob(id);
+      const s = JobModel.getState();
+      JobView.updateModalActionButtons(s.savedJobs, s.appliedJobs);
+    },
+  });
 }
 
 function _render() {
@@ -59,6 +79,7 @@ function _render() {
   JobView.renderJobs(visibleJobs, currentState.savedJobs, currentState.appliedJobs, {
     onSave: _handleSaveJob,
     onApply: _handleApplyJob,
+    onViewDetails: _handleViewDetails,
   });
 
   FilterView.renderTagFilters(
