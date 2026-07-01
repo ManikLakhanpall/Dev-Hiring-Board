@@ -11,6 +11,10 @@
     --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.06);
     --shadow-md: 0 16px 40px rgba(15, 23, 42, 0.1);
     --radius: 18px;
+
+    /* Layout spacing */
+    --header-height: 96px;  /* exact height of the sticky header (enforced in header rule) */
+    --top-gap: 24px;        /* gap below the header for both the sidebar and job list */
 }
 
 * {
@@ -27,7 +31,10 @@ body {
 }
 
 header {
-    padding: 24px clamp(20px, 4vw, 40px);
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    padding: 0 clamp(20px, 4vw, 40px);
     background: rgba(255, 255, 255, 0.94);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(226, 232, 240, 0.8);
@@ -57,20 +64,20 @@ main {
     gap: 24px;
     max-width: 1320px;
     margin: 0 auto;
-    padding: 24px clamp(16px, 3vw, 32px) 40px;
+    padding: var(--top-gap) clamp(16px, 3vw, 32px) 40px;
     margin-left: clamp(300px, 24vw, 330px);
 }
 
 #filter-panel {
     width: min(320px, 100%);
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - var(--header-height) - var(--top-gap) * 2);
     padding: 24px 20px 20px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow-sm);
     position: fixed;
-    top: 96px;
+    top: calc(var(--header-height) + var(--top-gap));
     left: 24px;
     bottom: 24px;
     overflow-y: hidden;
@@ -152,7 +159,7 @@ main {
     width: 100%;
     padding: 12px 14px;
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 999px;
     margin: 12px 0 16px;
     font-size: 0.95rem;
     color: var(--text);
