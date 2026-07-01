@@ -1,6 +1,9 @@
+// ─── Service Layer: Job API ───────────────────────────────────────────────────
+// Responsible for fetching remote job data. Has no UI or state responsibilities.
+
 const API_URL = "https://remoteok.com/api";
 
-const JobService = {
+export const JobService = {
   async fetchJobs() {
     try {
       const response = await fetch(API_URL);
