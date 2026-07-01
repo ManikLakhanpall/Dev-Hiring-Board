@@ -2,7 +2,23 @@
 // Responsible for rendering job cards into the DOM.
 // Has no knowledge of application state — it only receives data and callbacks.
 
+import { clearElement } from "../services/utils.js";
+
 // ── Private helpers ────────────────────────────────────────────────────────
+
+/**
+ * Sets HTML content safely by parsing on a detached element then moving nodes.
+ * Use only for trusted HTML content (e.g. job descriptions from API).
+ */
+function _setHtmlContent(element, html) {
+  clearElement(element);
+  if (!html) return;
+  const temp = document.createElement("div");
+  temp.innerHTML = html;
+  while (temp.firstChild) {
+    element.appendChild(temp.firstChild);
+  }
+}
 
 function _formatSalary(job) {
   const min = job.salary_min;
@@ -26,59 +42,97 @@ function _createJobCard(job, savedJobs = [], appliedJobs = [], handlers = {}) {
 
   const salary = _formatSalary(job);
 
-  card.innerHTML = `
-    <div class="card-content">
-      <h2 class="job-title">${job.position}</h2>
-      <p class="job-company"><strong>${job.company}</strong></p>
-      <div class="job-meta">
-        <span class="job-location">${job.location || "Remote"}</span>
-        <span class="job-salary">${salary}</span>
-      </div>
-      <div class="tags"></div>
-    </div>
+  // Build card structure using DOM methods (no innerHTML for security & cleanliness)
+  const cardContent = document.createElement("div");
+  cardContent.className = "card-content";
 
-    <button class="details-btn">View Details</button>
+  // Title (clamped in CSS)
+  const titleEl = document.createElement("h2");
+  titleEl.className = "job-title";
+  titleEl.textContent = job.position || "";
+  cardContent.appendChild(titleEl);
 
-    <div class="card-actions"></div>
-  `;
+  // Company
+  const companyEl = document.createElement("p");
+  companyEl.className = "job-company";
+  const companyStrong = document.createElement("strong");
+  companyStrong.textContent = job.company || "";
+  companyEl.appendChild(companyStrong);
+  cardContent.appendChild(companyEl);
 
-  // Render tag badges
-  const tagsContainer = card.querySelector(".tags");
-  (job.tags || []).forEach((tag) => {
+  // Meta (location + salary)
+  const metaEl = document.createElement("div");
+  metaEl.className = "job-meta";
+
+  const locationEl = document.createElement("span");
+  locationEl.className = "job-location";
+  locationEl.textContent = job.location || "Remote";
+  metaEl.appendChild(locationEl);
+
+  const salaryEl = document.createElement("span");
+  salaryEl.className = "job-salary";
+  salaryEl.textContent = salary;
+  metaEl.appendChild(salaryEl);
+
+  cardContent.appendChild(metaEl);
+  card.appendChild(cardContent);
+
+  // Tags container
+  const tagsContainer = document.createElement("div");
+  tagsContainer.className = "tags";
+
+  // Render limited tag badges
+  const allTags = job.tags || [];
+  const maxPreviewTags = 6;
+  allTags.slice(0, maxPreviewTags).forEach((tag) => {
     const badge = document.createElement("span");
     badge.className = "tag";
     badge.textContent = tag;
     tagsContainer.appendChild(badge);
   });
 
-  // Action buttons — appended to the footer container so we can pin them at bottom
-  const cardActions = card.querySelector(".card-actions");
+  if (allTags.length > maxPreviewTags) {
+    const more = document.createElement("span");
+    more.className = "tag more";
+    more.textContent = `+${allTags.length - maxPreviewTags}`;
+    tagsContainer.appendChild(more);
+  }
+
+  card.appendChild(tagsContainer);
+
+  // Details button
+  const detailsBtn = document.createElement("button");
+  detailsBtn.className = "details-btn";
+  detailsBtn.textContent = "View Details";
+  detailsBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    handlers.onViewDetails?.(job);
+  });
+  card.appendChild(detailsBtn);
+
+  // Actions footer
+  const cardActions = document.createElement("div");
+  cardActions.className = "card-actions";
 
   const saveButton = document.createElement("button");
   saveButton.className = "save-btn";
   saveButton.textContent = savedJobs.includes(job.id) ? "Saved" : "Save";
+  saveButton.addEventListener("click", (e) => {
+    e.stopPropagation();
+    handlers.onSave?.(job.id);
+  });
   cardActions.appendChild(saveButton);
 
   const applyButton = document.createElement("button");
   applyButton.className = "apply-btn";
   applyButton.textContent = appliedJobs.includes(job.id) ? "Applied" : "Mark Applied";
-  cardActions.appendChild(applyButton);
-
-  // Event listeners
-  card.querySelector(".details-btn").addEventListener("click", (e) => {
-    e.stopPropagation();
-    handlers.onViewDetails?.(job);
-  });
-
-  saveButton.addEventListener("click", (e) => {
-    e.stopPropagation();
-    handlers.onSave?.(job.id);
-  });
-
   applyButton.addEventListener("click", (e) => {
     e.stopPropagation();
     handlers.onApply?.(job.id);
   });
+  cardActions.appendChild(applyButton);
+
+  card.appendChild(cardActions);
 
   return card;
 }
@@ -154,10 +208,10 @@ function _showJobModal(job, savedJobs = [], appliedJobs = [], handlers = {}) {
   setText("modal-salary", _formatSalary(job));
   setText("modal-date", _formatDate(job.date));
 
-  // Tags
+  // Tags (modal shows all)
   const tagsContainer = document.getElementById("modal-tags");
   if (tagsContainer) {
-    tagsContainer.innerHTML = "";
+    clearElement(tagsContainer);
     (job.tags || []).forEach((tag) => {
       const badge = document.createElement("span");
       badge.className = "tag";
@@ -166,10 +220,10 @@ function _showJobModal(job, savedJobs = [], appliedJobs = [], handlers = {}) {
     });
   }
 
-  // Description
+  // Description - use safe setter for API-provided HTML content
   const descEl = document.getElementById("modal-description");
   if (descEl) {
-    descEl.innerHTML = job.description || "<p>No description provided.</p>";
+    _setHtmlContent(descEl, job.description || "<p>No description provided.</p>");
   }
 
   // Action buttons
@@ -253,15 +307,21 @@ export const JobView = {
    */
   renderJobs(jobsToRender, savedJobs = [], appliedJobs = [], handlers = {}) {
     const jobList = document.getElementById("job-list");
-    jobList.innerHTML = "";
+    clearElement(jobList);
 
     if (jobsToRender.length === 0) {
-      jobList.innerHTML = `
-        <div class="empty-state">
-          <h2>No jobs found</h2>
-          <p>Try changing filters.</p>
-        </div>
-      `;
+      const empty = document.createElement("div");
+      empty.className = "empty-state";
+
+      const h2 = document.createElement("h2");
+      h2.textContent = "No jobs found";
+      empty.appendChild(h2);
+
+      const p = document.createElement("p");
+      p.textContent = "Try changing filters.";
+      empty.appendChild(p);
+
+      jobList.appendChild(empty);
       return;
     }
 
