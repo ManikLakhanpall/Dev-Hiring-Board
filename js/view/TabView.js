@@ -12,7 +12,7 @@ export const TabView = {
 
     buttons.forEach((button) => {
       button.addEventListener("click", () => {
-        onTabChange?.(button.dataset.tab);
+        onTabChange(button.dataset.tab);
       });
     });
   },
