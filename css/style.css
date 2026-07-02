@@ -348,10 +348,13 @@ main {
 
     #tabs {
         flex-direction: column;
+        border-radius: var(--radius);        
+        height: fit-content;
     }
 
     #tabs button {
         width: 100%;
+        border-radius: 12px; /* inner radius = outer radius (18px) minus padding (6px) */
     }
 
     #job-list {
