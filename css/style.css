@@ -189,7 +189,10 @@ main {
 #tag-filters {
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 5px;
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
     margin-bottom: 16px;
 }
 
