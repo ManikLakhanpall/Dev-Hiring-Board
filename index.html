@@ -9,12 +9,20 @@
   </head>
   <body>
     <header>
-      <h1>Devboard Hiring</h1>
+      <div class="header-inner">
+        <h1 class="header-title">Devboard Hiring</h1>
+        <!-- Burger menu for filters - shown below 1024px breakpoint -->
+        <button id="mobile-filter-toggle" class="burger-btn" aria-label="Open filters" aria-expanded="false">☰</button>
+      </div>
     </header>
 
     <main>
       <aside id="filter-panel">
-        <h2>Filters</h2>
+        <!-- Mobile header row inside filters for close button (shown on small screens) -->
+        <div class="filter-panel-header">
+          <h2>Filters</h2>
+          <button id="close-filters" class="mobile-close-btn" aria-label="Close filters">✕</button>
+        </div>
 
         <input type="text" id="search-input" placeholder="Search jobs..." />
 
@@ -33,6 +41,9 @@
         <div id="job-list"></div>
       </section>
     </main>
+
+    <!-- Mobile filters backdrop (shown via JS + .filters-open when burger used on small screens) -->
+    <div id="filter-backdrop" class="filter-backdrop"></div>
 
     <!-- Job Detail Modal -->
     <div id="job-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-position">
