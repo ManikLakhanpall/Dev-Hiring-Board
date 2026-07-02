@@ -7,6 +7,7 @@ import { toggleItem, getUniqueTags, filterBySearch } from "../services/utils.js"
 
 const _jobModelState = {
   jobs: [],
+  tagOptions: [],           // cached once in setJobs(); never recomputed on render
   filters: {
     search: "",
     tags: [],
@@ -45,6 +46,8 @@ export const JobModel = {
 
   setJobs(jobs) {
     _jobModelState.jobs = jobs;
+    // Cache tag options once — the job list only changes at init
+    _jobModelState.tagOptions = getUniqueTags(jobs);
   },
 
   setSearch(search) {
@@ -72,11 +75,11 @@ export const JobModel = {
   // ── Getters ──────────────────────────────────────────────────────────────
 
   getState() {
-    return _jobModelState;
+    return { ..._jobModelState };
   },
 
   getTagOptions() {
-    return getUniqueTags(_jobModelState.jobs);
+    return _jobModelState.tagOptions;
   },
 
   getVisibleJobs() {

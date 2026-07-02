@@ -2,23 +2,10 @@
 // Responsible for rendering job cards into the DOM.
 // Has no knowledge of application state — it only receives data and callbacks.
 
-import { clearElement } from "../services/utils.js";
+import { clearElement, stripHtml } from "../services/utils.js";
 
 // ── Private helpers ────────────────────────────────────────────────────────
 
-/**
- * Sets HTML content safely by parsing on a detached element then moving nodes.
- * Use only for trusted HTML content (e.g. job descriptions from API).
- */
-function _setHtmlContent(element, html) {
-  clearElement(element);
-  if (!html) return;
-  const temp = document.createElement("div");
-  temp.innerHTML = html;
-  while (temp.firstChild) {
-    element.appendChild(temp.firstChild);
-  }
-}
 
 function _formatSalary(job) {
   const min = job.salary_min;
@@ -220,10 +207,11 @@ function _showJobModal(job, savedJobs = [], appliedJobs = [], handlers = {}) {
     });
   }
 
-  // Description - use safe setter for API-provided HTML content
+  // Description — stripHtml removes all tags so no inline event handlers can
+  // execute when the content enters the live DOM (Finding 1 from code review).
   const descEl = document.getElementById("modal-description");
   if (descEl) {
-    _setHtmlContent(descEl, job.description || "<p>No description provided.</p>");
+    descEl.textContent = stripHtml(job.description || "No description provided.");
   }
 
   // Action buttons

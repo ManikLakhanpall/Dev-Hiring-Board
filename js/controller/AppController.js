@@ -7,6 +7,7 @@ import { JobModel } from "../model/JobModel.js";
 import { JobView } from "../view/JobView.js";
 import { FilterView } from "../view/FilterView.js";
 import { TabView } from "../view/TabView.js";
+import { debounce } from "../services/utils.js";
 
 // ── Private helpers ────────────────────────────────────────────────────────
 
@@ -14,8 +15,10 @@ function _setupEventListeners() {
   const searchInput = document.getElementById("search-input");
   const clearButton = document.getElementById("clear-filters");
 
+  const _debouncedSearch = debounce(_handleSearchChange, 300);
+
   searchInput.addEventListener("input", (e) => {
-    _handleSearchChange(e.target.value);
+    _debouncedSearch(e.target.value);
   });
 
   clearButton.addEventListener("click", () => {

@@ -75,3 +75,18 @@ export function filterBySearch(jobsToSearch, searchValue) {
     return title.includes(keyword) || description.includes(keyword);
   });
 }
+
+/**
+ * Returns a debounced version of fn that only fires after `wait` ms of silence.
+ * Every new call resets the timer, so rapid calls collapse into one.
+ * @param {Function} fn
+ * @param {number} wait - milliseconds
+ * @returns {Function}
+ */
+export function debounce(fn, wait) {
+  let timer;
+  return function (...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), wait);
+  };
+}
