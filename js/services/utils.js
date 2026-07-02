@@ -18,13 +18,26 @@ export function getUniqueTags(jobs) {
 }
 
 /**
+ * Safely removes all children from a DOM element.
+ * Preferred over element.innerHTML = ''.
+ */
+export function clearElement(element) {
+  if (!element) return;
+  while (element.firstChild) {
+    element.removeChild(element.firstChild);
+  }
+}
+
+/**
  * Strips HTML markup and returns plain text.
  * @param {string} html
  * @returns {string}
  */
 export function stripHtml(html) {
+  // Safe use of innerHTML: detached element used only to extract textContent.
+  // Never used to inject into the live DOM.
   const temp = document.createElement("div");
-  temp.innerHTML = html;
+  temp.innerHTML = html || "";
   return temp.textContent || temp.innerText || "";
 }
 

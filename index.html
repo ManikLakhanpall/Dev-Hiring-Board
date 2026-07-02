@@ -9,12 +9,20 @@
   </head>
   <body>
     <header>
-      <h1>Devboard Hiring</h1>
+      <div class="header-inner">
+        <h1 class="header-title">Devboard Hiring</h1>
+        <!-- Burger menu for filters - shown below 1024px breakpoint -->
+        <button id="mobile-filter-toggle" class="burger-btn" aria-label="Open filters" aria-expanded="false">☰</button>
+      </div>
     </header>
 
     <main>
       <aside id="filter-panel">
-        <h2>Filters</h2>
+        <!-- Mobile header row inside filters for close button (shown on small screens) -->
+        <div class="filter-panel-header">
+          <h2>Filters</h2>
+          <button id="close-filters" class="mobile-close-btn" aria-label="Close filters">✕</button>
+        </div>
 
         <input type="text" id="search-input" placeholder="Search jobs..." />
 
@@ -33,6 +41,55 @@
         <div id="job-list"></div>
       </section>
     </main>
+
+    <!-- Mobile filters backdrop (shown via JS + .filters-open when burger used on small screens) -->
+    <div id="filter-backdrop" class="filter-backdrop"></div>
+
+    <!-- Job Detail Modal -->
+    <div id="job-modal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modal-position">
+      <div class="modal-backdrop"></div>
+      <div class="modal-content">
+        <button class="modal-close" aria-label="Close modal">&times;</button>
+
+        <div class="modal-header">
+          <div class="modal-company">
+            <img id="modal-logo" class="modal-logo" alt="" />
+            <div class="modal-company-text">
+              <h2 id="modal-position"></h2>
+              <p id="modal-company-name" class="modal-company-name"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-meta">
+          <div class="meta-item">
+            <span class="meta-label">Location</span>
+            <span id="modal-location" class="meta-value"></span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Salary</span>
+            <span id="modal-salary" class="meta-value"></span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Posted</span>
+            <span id="modal-date" class="meta-value"></span>
+          </div>
+        </div>
+
+        <div id="modal-tags" class="modal-tags"></div>
+
+        <div class="modal-description" id="modal-description"></div>
+
+        <div class="modal-actions">
+          <button id="modal-save-btn" class="save-btn"></button>
+          <button id="modal-apply-btn" class="apply-btn"></button>
+          <a id="modal-external-link" class="external-link" target="_blank" rel="noopener noreferrer">
+            View on RemoteOK ↗
+          </a>
+        </div>
+      </div>
+    </div>
+
     <!-- Entry point — imports are resolved via the module graph -->
     <script type="module" src="./js/controller/AppController.js"></script>
   </body>

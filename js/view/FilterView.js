@@ -2,6 +2,8 @@
 // Responsible for rendering the tag-filter checkbox list.
 // Has no knowledge of application state — it only receives data and callbacks.
 
+import { clearElement } from "../services/utils.js";
+
 export const FilterView = {
   /**
    * Renders tag filter checkboxes into the #tag-filters container.
@@ -11,7 +13,7 @@ export const FilterView = {
    */
   renderTagFilters(tags, selectedTags = [], onTagChange) {
     const container = document.getElementById("tag-filters");
-    container.innerHTML = "";
+    clearElement(container);
 
     tags.forEach((tag) => {
       const label = document.createElement("label");

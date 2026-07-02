@@ -25,6 +25,51 @@ function _setupEventListeners() {
     JobModel.setCurrentTab("all");
     _render();
   });
+
+  // Mobile burger menu for filters (below 1024px breakpoint)
+  _setupMobileFilterMenu();
+}
+
+function _setupMobileFilterMenu() {
+  const toggleBtn = document.getElementById("mobile-filter-toggle");
+  const closeBtn = document.getElementById("close-filters");
+  const backdrop = document.getElementById("filter-backdrop");
+  const panel = document.getElementById("filter-panel");
+
+  if (!toggleBtn || !panel) return;
+
+  function setFiltersOpen(isOpen) {
+    document.body.classList.toggle("filters-open", isOpen);
+    if (backdrop) backdrop.classList.toggle("hidden", !isOpen);
+    // Update aria for the toggle
+    toggleBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
+  }
+
+  toggleBtn.addEventListener("click", () => {
+    const currentlyOpen = document.body.classList.contains("filters-open");
+    setFiltersOpen(!currentlyOpen);
+  });
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => setFiltersOpen(false));
+  }
+  if (backdrop) {
+    backdrop.addEventListener("click", () => setFiltersOpen(false));
+  }
+
+  // Auto-close when resizing to desktop (lg+)
+  window.addEventListener("resize", () => {
+    if (window.innerWidth >= 1024 && document.body.classList.contains("filters-open")) {
+      setFiltersOpen(false);
+    }
+  });
+
+  // Bonus: close on Escape (nice a11y)
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape" && document.body.classList.contains("filters-open")) {
+      setFiltersOpen(false);
+    }
+  });
 }
 
 function _handleSearchChange(value) {
@@ -45,11 +90,31 @@ function _handleTabChange(tab) {
 function _handleSaveJob(jobId) {
   JobModel.toggleSavedJob(jobId);
   _render();
+  const s = JobModel.getState();
+  JobView.updateModalActionButtons(s.savedJobs, s.appliedJobs);
 }
 
 function _handleApplyJob(jobId) {
   JobModel.toggleAppliedJob(jobId);
   _render();
+  const s = JobModel.getState();
+  JobView.updateModalActionButtons(s.savedJobs, s.appliedJobs);
+}
+
+function _handleViewDetails(job) {
+  const currentState = JobModel.getState();
+  JobView.showJobModal(job, currentState.savedJobs, currentState.appliedJobs, {
+    onSave: (id) => {
+      _handleSaveJob(id);
+      const s = JobModel.getState();
+      JobView.updateModalActionButtons(s.savedJobs, s.appliedJobs);
+    },
+    onApply: (id) => {
+      _handleApplyJob(id);
+      const s = JobModel.getState();
+      JobView.updateModalActionButtons(s.savedJobs, s.appliedJobs);
+    },
+  });
 }
 
 function _render() {
@@ -59,6 +124,7 @@ function _render() {
   JobView.renderJobs(visibleJobs, currentState.savedJobs, currentState.appliedJobs, {
     onSave: _handleSaveJob,
     onApply: _handleApplyJob,
+    onViewDetails: _handleViewDetails,
   });
 
   FilterView.renderTagFilters(

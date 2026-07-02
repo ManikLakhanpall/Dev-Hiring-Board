@@ -11,6 +11,10 @@
     --shadow-sm: 0 8px 24px rgba(15, 23, 42, 0.06);
     --shadow-md: 0 16px 40px rgba(15, 23, 42, 0.1);
     --radius: 18px;
+
+    /* Layout spacing */
+    --header-height: 96px;  /* exact height of the sticky header (enforced in header rule) */
+    --top-gap: 24px;        /* gap below the header for both the sidebar and job list */
 }
 
 * {
@@ -27,7 +31,10 @@ body {
 }
 
 header {
-    padding: 24px clamp(20px, 4vw, 40px);
+    height: var(--header-height);
+    display: flex;
+    align-items: center;
+    padding: 0 clamp(20px, 4vw, 40px);
     background: rgba(255, 255, 255, 0.94);
     backdrop-filter: blur(12px);
     border-bottom: 1px solid rgba(226, 232, 240, 0.8);
@@ -35,6 +42,11 @@ header {
     position: sticky;
     top: 0;
     z-index: 20;
+}
+
+/* Ensure the flex wrapper we introduced for burger works with the existing padding */
+header > div {
+    width: 100%;
 }
 
 header h1 {
@@ -57,20 +69,28 @@ main {
     gap: 24px;
     max-width: 1320px;
     margin: 0 auto;
-    padding: 24px clamp(16px, 3vw, 32px) 40px;
+    padding: var(--top-gap) clamp(16px, 3vw, 32px) 40px;
     margin-left: clamp(300px, 24vw, 330px);
+}
+
+/* On mobile (burger mode) do not apply the desktop sidebar indent */
+@media (max-width: 1023.98px) {
+    main {
+        margin-left: 0 !important;
+        padding-left: clamp(16px, 3vw, 32px);
+    }
 }
 
 #filter-panel {
     width: min(320px, 100%);
-    max-height: calc(100vh - 120px);
+    max-height: calc(100vh - var(--header-height) - var(--top-gap) * 2);
     padding: 24px 20px 20px;
     background: var(--surface);
     border: 1px solid var(--border);
     border-radius: var(--radius);
     box-shadow: var(--shadow-sm);
     position: fixed;
-    top: 96px;
+    top: calc(var(--header-height) + var(--top-gap));
     left: 24px;
     bottom: 24px;
     overflow-y: hidden;
@@ -152,7 +172,7 @@ main {
     width: 100%;
     padding: 12px 14px;
     border: 1px solid var(--border);
-    border-radius: 12px;
+    border-radius: 999px;
     margin: 12px 0 16px;
     font-size: 0.95rem;
     color: var(--text);
@@ -266,28 +286,58 @@ main {
 
 #job-list {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(275px, 1fr));
     gap: 16px;
 }
 
-@media (max-width: 900px) {
-    main {
-        flex-direction: column;
-        margin-left: auto;
+/* =====================================================
+   Responsive updates using standard breakpoints (matching Tailwind docs)
+   (sm:640px, md:768px, lg:1024px, xl:1280px)
+   - Sidebar visible + no burger at lg+
+   - Burger menu + slide-in drawer for filters below lg (1024px)
+   ===================================================== */
+
+/* Mobile drawer below 1024px (lg breakpoint) - filters hidden by default; toggled via .filters-open from burger */
+@media (max-width: 1023.98px) {
+    #filter-panel {
+        display: none;
+        position: fixed;
+        top: var(--header-height);
+        left: 0;
+        bottom: 0;
+        width: 82%;
+        max-width: 320px;
+        z-index: 50;
+        transform: translateX(-100%);
+        transition: transform 0.2s ease-out;
+        box-shadow: var(--shadow-md);
+        /* ensure it behaves like the desktop panel when visible */
+        overflow-y: auto;
+        background: var(--surface);
+        border-right: 1px solid var(--border);
     }
 
-    #filter-panel {
-        width: 100%;
-        position: static;
-        max-height: none;
-        overflow: visible;
-        top: auto;
-        left: auto;
-        bottom: auto;
+    body.filters-open #filter-panel,
+    .filters-open #filter-panel {
+        display: flex;
+        transform: translateX(0);
+    }
+
+    /* Backdrop controlled primarily by JS adding/removing .hidden + this */
+    #filter-backdrop {
+        z-index: 40;
     }
 }
 
-@media (max-width: 600px) {
+/* Improve grid at sm (640px) */
+@media (min-width: 640px) {
+    #job-list {
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    }
+}
+
+/* Legacy compact styles (below sm 640px) */
+@media (max-width: 639px) {
     header {
         padding: 20px 16px;
     }
@@ -307,4 +357,74 @@ main {
     #job-list {
         grid-template-columns: 1fr;
     }
+}
+
+/* === Responsive visibility controls (lg = 1024px) === */
+.burger-btn {
+  display: block;
+  font-size: 1.5rem;
+  line-height: 1;
+  padding: 0 8px;
+}
+
+@media (min-width: 1024px) {
+  .burger-btn {
+    display: none;
+  }
+}
+
+.mobile-close-btn {
+  display: block;
+  font-size: 1.25rem;
+  line-height: 1;
+  padding: 2px 8px;
+  margin-left: 8px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  color: var(--muted);
+}
+
+@media (min-width: 1024px) {
+  .mobile-close-btn {
+    display: none;
+  }
+}
+
+/* Header inner for burger layout (space-between on mobile) */
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.header-title {
+  flex-shrink: 0;
+}
+
+/* Filter panel header row */
+.filter-panel-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+@media (min-width: 1024px) {
+  .filter-panel-header {
+    display: block;
+  }
+}
+
+/* Backdrop base styles (controlled by .filters-open + JS) */
+.filter-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  background: rgba(0, 0, 0, 0.4);
+  display: none;
+}
+
+body.filters-open .filter-backdrop {
+  display: block;
 }
