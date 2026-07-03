@@ -1,12 +1,14 @@
 // ─── Pure utility functions (no MVC role) ────────────────────────────────────
 
+import { Job } from "../types";
+
 /**
  * Returns a sorted array of unique tags across all jobs.
- * @param {Array} jobs
+ * @param {Job[]} jobs
  * @returns {string[]}
  */
-export function getUniqueTags(jobs) {
-  const uniqueTags = new Set();
+export function getUniqueTags(jobs: Job[]): string[] {
+  const uniqueTags = new Set<string>();
 
   jobs.forEach((job) => {
     (job.tags || []).forEach((tag) => {
@@ -21,7 +23,7 @@ export function getUniqueTags(jobs) {
  * Safely removes all children from a DOM element.
  * Preferred over element.innerHTML = ''.
  */
-export function clearElement(element) {
+export function clearElement(element: HTMLElement | null): void {
   if (!element) return;
   while (element.firstChild) {
     element.removeChild(element.firstChild);
@@ -33,7 +35,7 @@ export function clearElement(element) {
  * @param {string} html
  * @returns {string}
  */
-export function stripHtml(html) {
+export function stripHtml(html: string): string {
   // Safe use of innerHTML: detached element used only to extract textContent.
   // Never used to inject into the live DOM.
   const temp = document.createElement("div");
@@ -43,11 +45,11 @@ export function stripHtml(html) {
 
 /**
  * Toggles an item's presence in an array (immutable).
- * @param {Array} array
- * @param {*} id
- * @returns {Array}
+ * @param {T[]} array
+ * @param {T} id
+ * @returns {T[]}
  */
-export function toggleItem(array, id) {
+export function toggleItem<T>(array: T[], id: T): T[] {
   if (array.includes(id)) {
     return array.filter((item) => item !== id);
   }
@@ -57,11 +59,11 @@ export function toggleItem(array, id) {
 
 /**
  * Filters a list of jobs by a search keyword (matches title + description).
- * @param {Array} jobsToSearch
+ * @param {Job[]} jobsToSearch
  * @param {string} searchValue
- * @returns {Array}
+ * @returns {Job[]}
  */
-export function filterBySearch(jobsToSearch, searchValue) {
+export function filterBySearch(jobsToSearch: Job[], searchValue: string): Job[] {
   const keyword = (searchValue || "").trim().toLowerCase();
 
   if (!keyword) {
@@ -83,9 +85,9 @@ export function filterBySearch(jobsToSearch, searchValue) {
  * @param {number} wait - milliseconds
  * @returns {Function}
  */
-export function debounce(fn, wait) {
-  let timer;
-  return function (...args) {
+export function debounce<T extends (...args: any[]) => void>(fn: T, wait: number): (...args: Parameters<T>) => void {
+  let timer: ReturnType<typeof setTimeout>;
+  return function (this: any, ...args: Parameters<T>) {
     clearTimeout(timer);
     timer = setTimeout(() => fn.apply(this, args), wait);
   };

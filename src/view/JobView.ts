@@ -2,12 +2,13 @@
 // Responsible for rendering job cards into the DOM.
 // Has no knowledge of application state — it only receives data and callbacks.
 
-import { clearElement, stripHtml } from "../services/utils.js";
+import { Job, JobHandlers } from "../types";
+import { clearElement, stripHtml } from "../services/utils";
 
 // ── Private helpers ────────────────────────────────────────────────────────
 
 
-function _formatSalary(job) {
+function _formatSalary(job: Job): string {
   const min = job.salary_min;
   const max = job.salary_max;
   if (min && max && (min > 0 || max > 0)) {
@@ -16,14 +17,19 @@ function _formatSalary(job) {
   return "Salary not specified";
 }
 
-function _formatDate(dateStr) {
+function _formatDate(dateStr?: string): string {
   if (!dateStr) return "N/A";
   const d = new Date(dateStr);
   if (isNaN(d.getTime())) return dateStr; // already relative or weird format
   return d.toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" });
 }
 
-function _createJobCard(job, savedJobs = [], appliedJobs = [], handlers = {}) {
+function _createJobCard(
+  job: Job,
+  savedJobs: string[] = [],
+  appliedJobs: string[] = [],
+  handlers: JobHandlers = {}
+): HTMLElement {
   const card = document.createElement("div");
   card.className = "job-card";
 
@@ -103,7 +109,7 @@ function _createJobCard(job, savedJobs = [], appliedJobs = [], handlers = {}) {
 
   const saveButton = document.createElement("button");
   saveButton.className = "save-btn";
-  saveButton.textContent = savedJobs.includes(job.id) ? "Saved" : "Save";
+  saveButton.textContent = savedJobs.includes(String(job.id)) ? "Saved" : "Save";
   saveButton.addEventListener("click", (e) => {
     e.stopPropagation();
     handlers.onSave?.(job.id);
@@ -112,7 +118,7 @@ function _createJobCard(job, savedJobs = [], appliedJobs = [], handlers = {}) {
 
   const applyButton = document.createElement("button");
   applyButton.className = "apply-btn";
-  applyButton.textContent = appliedJobs.includes(job.id) ? "Applied" : "Mark Applied";
+  applyButton.textContent = appliedJobs.includes(String(job.id)) ? "Applied" : "Mark Applied";
   applyButton.addEventListener("click", (e) => {
     e.stopPropagation();
     handlers.onApply?.(job.id);
@@ -126,9 +132,9 @@ function _createJobCard(job, savedJobs = [], appliedJobs = [], handlers = {}) {
 
 // ── Modal implementation (private) ─────────────────────────────────────────
 
-let _currentEscapeHandler = null;
+let _currentEscapeHandler: ((e: KeyboardEvent) => void) | null = null;
 
-function _closeModal() {
+function _closeModal(): void {
   const modal = document.getElementById("job-modal");
   if (!modal) return;
 
@@ -142,7 +148,7 @@ function _closeModal() {
   }
 }
 
-function _updateActionButtons(savedJobs = [], appliedJobs = []) {
+function _updateActionButtons(savedJobs: string[] = [], appliedJobs: string[] = []): void {
   const modal = document.getElementById("job-modal");
   if (!modal || modal.classList.contains("hidden")) return;
 
@@ -163,7 +169,12 @@ function _updateActionButtons(savedJobs = [], appliedJobs = []) {
   }
 }
 
-function _showJobModal(job, savedJobs = [], appliedJobs = [], handlers = {}) {
+function _showJobModal(
+  job: Job,
+  savedJobs: string[] = [],
+  appliedJobs: string[] = [],
+  handlers: JobHandlers = {}
+): void {
   const modal = document.getElementById("job-modal");
   if (!modal) {
     console.warn("Modal element #job-modal not found in DOM");
@@ -171,7 +182,7 @@ function _showJobModal(job, savedJobs = [], appliedJobs = [], handlers = {}) {
   }
 
   // Populate content
-  const logoEl = document.getElementById("modal-logo");
+  const logoEl = document.getElementById("modal-logo") as HTMLImageElement | null;
   const logoSrc = job.company_logo || job.logo || "";
   if (logoEl) {
     if (logoSrc) {
@@ -184,7 +195,7 @@ function _showJobModal(job, savedJobs = [], appliedJobs = [], handlers = {}) {
     }
   }
 
-  const setText = (id, text) => {
+  const setText = (id: string, text?: string) => {
     const el = document.getElementById(id);
     if (el) el.textContent = text || "";
   };
@@ -218,7 +229,7 @@ function _showJobModal(job, savedJobs = [], appliedJobs = [], handlers = {}) {
   // Action buttons
   const saveBtn = document.getElementById("modal-save-btn");
   const applyBtn = document.getElementById("modal-apply-btn");
-  const linkEl = document.getElementById("modal-external-link");
+  const linkEl = document.getElementById("modal-external-link") as HTMLAnchorElement | null;
 
   const jobIdStr = String(job.id);
   const isSaved = savedJobs.some((id) => String(id) === jobIdStr);
@@ -259,8 +270,8 @@ function _showJobModal(job, savedJobs = [], appliedJobs = [], handlers = {}) {
   document.body.classList.add("modal-open");
 
   // Close handlers (fresh each time)
-  const backdrop = modal.querySelector(".modal-backdrop");
-  const closeBtn = modal.querySelector(".modal-close");
+  const backdrop = modal.querySelector<HTMLElement>(".modal-backdrop");
+  const closeBtn = modal.querySelector<HTMLElement>(".modal-close");
 
   if (backdrop) {
     // Remove previous if any (by replacing node is overkill) — use onclick for simplicity
@@ -274,7 +285,7 @@ function _showJobModal(job, savedJobs = [], appliedJobs = [], handlers = {}) {
   if (_currentEscapeHandler) {
     document.removeEventListener("keydown", _currentEscapeHandler);
   }
-  _currentEscapeHandler = (e) => {
+  _currentEscapeHandler = (e: KeyboardEvent) => {
     if (e.key === "Escape") {
       _closeModal();
     }
@@ -290,13 +301,20 @@ function _showJobModal(job, savedJobs = [], appliedJobs = [], handlers = {}) {
 export const JobView = {
   /**
    * Renders a list of jobs into the #job-list container.
-   * @param {Array}    jobsToRender
+   * @param {Job[]}    jobsToRender
    * @param {string[]} savedJobs    - Array of saved job IDs
    * @param {string[]} appliedJobs  - Array of applied job IDs
-   * @param {Object}   handlers     - { onSave, onApply, onViewDetails }
+   * @param {JobHandlers}   handlers     - { onSave, onApply, onViewDetails }
    */
-  renderJobs(jobsToRender, savedJobs = [], appliedJobs = [], handlers = {}) {
+  renderJobs(
+    jobsToRender: Job[],
+    savedJobs: string[] = [],
+    appliedJobs: string[] = [],
+    handlers: JobHandlers = {}
+  ): void {
     const jobList = document.getElementById("job-list");
+    if (!jobList) return;
+    
     clearElement(jobList);
 
     if (jobsToRender.length === 0) {
@@ -323,12 +341,17 @@ export const JobView = {
 
   /**
    * Opens the job detail modal.
-   * @param {Object} job
+   * @param {Job} job
    * @param {string[]} savedJobs
    * @param {string[]} appliedJobs
-   * @param {Object} handlers - { onSave, onApply }
+   * @param {JobHandlers} handlers - { onSave, onApply }
    */
-  showJobModal(job, savedJobs = [], appliedJobs = [], handlers = {}) {
+  showJobModal(
+    job: Job,
+    savedJobs: string[] = [],
+    appliedJobs: string[] = [],
+    handlers: JobHandlers = {}
+  ): void {
     _showJobModal(job, savedJobs, appliedJobs, handlers);
   },
 
@@ -336,7 +359,7 @@ export const JobView = {
    * Updates the Save / Apply button labels inside an open modal.
    * Safe to call even if modal is closed.
    */
-  updateModalActionButtons(savedJobs = [], appliedJobs = []) {
+  updateModalActionButtons(savedJobs: string[] = [], appliedJobs: string[] = []): void {
     _updateActionButtons(savedJobs, appliedJobs);
   },
 };

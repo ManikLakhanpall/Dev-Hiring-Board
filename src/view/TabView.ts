@@ -7,12 +7,14 @@ export const TabView = {
    * Attaches click listeners to all #tabs buttons.
    * @param {Function} onTabChange - Callback with the selected tab string
    */
-  setupTabs(onTabChange) {
-    const buttons = document.querySelectorAll("#tabs button");
+  setupTabs(onTabChange: (tab: string) => void): void {
+    const buttons = document.querySelectorAll<HTMLButtonElement>("#tabs button");
 
     buttons.forEach((button) => {
       button.addEventListener("click", () => {
-        onTabChange(button.dataset.tab);
+        if (button.dataset.tab) {
+          onTabChange(button.dataset.tab);
+        }
       });
     });
   },
@@ -21,8 +23,8 @@ export const TabView = {
    * Highlights the currently active tab button.
    * @param {string} currentTab - The active tab identifier
    */
-  updateActiveTab(currentTab) {
-    const buttons = document.querySelectorAll("#tabs button");
+  updateActiveTab(currentTab: string): void {
+    const buttons = document.querySelectorAll<HTMLButtonElement>("#tabs button");
 
     buttons.forEach((button) => {
       button.classList.toggle("active-tab", button.dataset.tab === currentTab);

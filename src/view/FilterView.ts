@@ -2,7 +2,7 @@
 // Responsible for rendering the tag-filter checkbox list.
 // Has no knowledge of application state — it only receives data and callbacks.
 
-import { clearElement } from "../services/utils.js";
+import { clearElement } from "../services/utils";
 
 export const FilterView = {
   /**
@@ -11,8 +11,10 @@ export const FilterView = {
    * @param {string[]} selectedTags - Currently active tags
    * @param {Function} onTagChange  - Callback with the new selected tags array
    */
-  renderTagFilters(tags, selectedTags = [], onTagChange) {
+  renderTagFilters(tags: string[], selectedTags: string[] = [], onTagChange?: (tags: string[]) => void): void {
     const container = document.getElementById("tag-filters");
+    if (!container) return;
+    
     clearElement(container);
 
     tags.forEach((tag) => {
@@ -24,8 +26,8 @@ export const FilterView = {
       checkbox.checked = selectedTags.includes(tag);
 
       checkbox.addEventListener("change", () => {
-        const checkedBoxes = document.querySelectorAll("#tag-filters input:checked");
-        const nextTags = [...checkedBoxes].map((box) => box.value);
+        const checkedBoxes = document.querySelectorAll<HTMLInputElement>("#tag-filters input:checked");
+        const nextTags = Array.from(checkedBoxes).map((box) => box.value);
         onTagChange?.(nextTags);
       });
 

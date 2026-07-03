@@ -2,10 +2,11 @@
 // Owns all application state and exposes pure data-manipulation methods.
 // Has no knowledge of the DOM or how data is displayed.
 
-import { StorageService } from "../model/StorageService.js";
-import { toggleItem, getUniqueTags, filterBySearch } from "../services/utils.js";
+import { Job, JobModelState } from "../types";
+import { StorageService } from "../model/StorageService";
+import { toggleItem, getUniqueTags, filterBySearch } from "../services/utils";
 
-const _jobModelState = {
+const _jobModelState: JobModelState = {
   jobs: [],
   tagOptions: [],           // cached once in setJobs(); never recomputed on render
   filters: {
@@ -19,7 +20,7 @@ const _jobModelState = {
 
 // ── Private filter helpers ─────────────────────────────────────────────────
 
-function _filterByTags(jobsToFilter, selectedTags = []) {
+function _filterByTags(jobsToFilter: Job[], selectedTags: string[] = []): Job[] {
   if (selectedTags.length === 0) return jobsToFilter;
 
   return jobsToFilter.filter((job) =>
@@ -27,13 +28,13 @@ function _filterByTags(jobsToFilter, selectedTags = []) {
   );
 }
 
-function _filterByTab(jobsToFilter, currentTab, savedJobs, appliedJobs) {
+function _filterByTab(jobsToFilter: Job[], currentTab: string, savedJobs: (string|number)[], appliedJobs: (string|number)[]): Job[] {
   if (currentTab === "saved") {
-    return jobsToFilter.filter((job) => savedJobs.includes(job.id));
+    return jobsToFilter.filter((job) => savedJobs.includes(job.id as string));
   }
 
   if (currentTab === "applied") {
-    return jobsToFilter.filter((job) => appliedJobs.includes(job.id));
+    return jobsToFilter.filter((job) => appliedJobs.includes(job.id as string));
   }
 
   return jobsToFilter;
@@ -44,45 +45,45 @@ function _filterByTab(jobsToFilter, currentTab, savedJobs, appliedJobs) {
 export const JobModel = {
   // ── Setters ──────────────────────────────────────────────────────────────
 
-  setJobs(jobs) {
+  setJobs(jobs: Job[]): void {
     _jobModelState.jobs = jobs;
     // Cache tag options once — the job list only changes at init
     _jobModelState.tagOptions = getUniqueTags(jobs);
   },
 
-  setSearch(search) {
+  setSearch(search: string): void {
     _jobModelState.filters.search = search;
   },
 
-  setTagFilters(tags) {
+  setTagFilters(tags: string[]): void {
     _jobModelState.filters.tags = tags;
   },
 
-  setCurrentTab(tab) {
+  setCurrentTab(tab: string): void {
     _jobModelState.currentTab = tab;
   },
 
-  toggleSavedJob(jobId) {
-    _jobModelState.savedJobs = toggleItem(_jobModelState.savedJobs, jobId);
+  toggleSavedJob(jobId: string | number): void {
+    _jobModelState.savedJobs = toggleItem(_jobModelState.savedJobs, String(jobId));
     StorageService.saveSavedJobs(_jobModelState.savedJobs);
   },
 
-  toggleAppliedJob(jobId) {
-    _jobModelState.appliedJobs = toggleItem(_jobModelState.appliedJobs, jobId);
+  toggleAppliedJob(jobId: string | number): void {
+    _jobModelState.appliedJobs = toggleItem(_jobModelState.appliedJobs, String(jobId));
     StorageService.saveAppliedJobs(_jobModelState.appliedJobs);
   },
 
   // ── Getters ──────────────────────────────────────────────────────────────
 
-  getState() {
+  getState(): JobModelState {
     return { ..._jobModelState };
   },
 
-  getTagOptions() {
+  getTagOptions(): string[] {
     return _jobModelState.tagOptions;
   },
 
-  getVisibleJobs() {
+  getVisibleJobs(): Job[] {
     let visibleJobs = [..._jobModelState.jobs];
 
     visibleJobs = filterBySearch(visibleJobs, _jobModelState.filters.search);
