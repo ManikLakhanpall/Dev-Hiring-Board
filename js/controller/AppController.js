@@ -9,6 +9,30 @@ import { FilterView } from "../view/FilterView.js";
 import { TabView } from "../view/TabView.js";
 import { debounce } from "../services/utils.js";
 
+// ── Loading / Error screen helpers ───────────────────────────────────────
+
+function _hideLoadingScreen() {
+  const screen = document.getElementById("loading-screen");
+  if (!screen) return;
+  // Adding .loaded triggers the CSS opacity/visibility transition
+  screen.classList.add("loaded");
+}
+
+function _showErrorScreen(onRetry) {
+  const loadingScreen = document.getElementById("loading-screen");
+  const errorScreen = document.getElementById("error-screen");
+  if (loadingScreen) loadingScreen.classList.add("loaded"); // fade out loader
+  if (errorScreen) errorScreen.classList.remove("hidden");
+
+  const retryBtn = document.getElementById("error-retry-btn");
+  if (retryBtn) {
+    retryBtn.onclick = () => {
+      errorScreen.classList.add("hidden");
+      onRetry();
+    };
+  }
+}
+
 // ── Private helpers ────────────────────────────────────────────────────────
 
 function _setupEventListeners() {
@@ -43,6 +67,7 @@ function _setupMobileFilterMenu() {
 
   function setFiltersOpen(isOpen) {
     document.body.classList.toggle("filters-open", isOpen);
+    document.body.classList.toggle("modal-open", isOpen); // lock background scroll
     if (backdrop) backdrop.classList.toggle("hidden", !isOpen);
     // Update aria for the toggle
     toggleBtn.setAttribute("aria-expanded", isOpen ? "true" : "false");
@@ -149,8 +174,10 @@ const AppController = {
       _render();
       _setupEventListeners();
       TabView.setupTabs(_handleTabChange);
+      _hideLoadingScreen();
     } catch (error) {
       console.error("Failed to initialize app:", error);
+      _showErrorScreen(() => AppController.init());
     }
   },
 };

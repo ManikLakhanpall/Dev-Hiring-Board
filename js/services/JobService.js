@@ -11,7 +11,6 @@ export const JobService = {
       return data.filter((job) => job.id);
     } catch (error) {
       console.error("Error fetching jobs:", error);
-      alert("Failed to fetch jobs. Please try again later.");
       throw error;
     }
   },

@@ -133,6 +133,7 @@ function _closeModal() {
   if (!modal) return;
 
   modal.classList.add("hidden");
+  document.body.classList.remove("modal-open");
 
   // Cleanup escape listener
   if (_currentEscapeHandler) {
@@ -253,8 +254,9 @@ function _showJobModal(job, savedJobs = [], appliedJobs = [], handlers = {}) {
     }
   }
 
-  // Show modal
+  // Show modal + lock background scroll
   modal.classList.remove("hidden");
+  document.body.classList.add("modal-open");
 
   // Close handlers (fresh each time)
   const backdrop = modal.querySelector(".modal-backdrop");

@@ -21,6 +21,11 @@
     box-sizing: border-box;
 }
 
+/* Locks background scroll when a modal is open */
+body.modal-open {
+    overflow: hidden;
+}
+
 body {
     margin: 0;
     font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
@@ -305,16 +310,18 @@ main {
     #filter-panel {
         display: none;
         position: fixed;
-        top: var(--header-height);
         left: 0;
+        top: 0;
         bottom: 0;
+        height: 100dvh;
+        max-height: none;        /* cancel the desktop calc() cap */
+        border-radius: 0;        /* no rounded corners — drawer goes edge-to-edge */
         width: 82%;
         max-width: 320px;
         z-index: 50;
         transform: translateX(-100%);
         transition: transform 0.2s ease-out;
         box-shadow: var(--shadow-md);
-        /* ensure it behaves like the desktop panel when visible */
         overflow-y: auto;
         background: var(--surface);
         border-right: 1px solid var(--border);
@@ -433,4 +440,146 @@ main {
 
 body.filters-open .filter-backdrop {
   display: block;
+}
+
+/* =====================================================
+   Loading Screen
+   ===================================================== */
+
+#loading-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: linear-gradient(135deg, #f8fbff 0%, var(--bg) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+/* JS adds .loaded to fade it out */
+#loading-screen.loaded {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.loading-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  text-align: center;
+}
+
+.loading-logo {
+  font-size: 3rem;
+  animation: loading-pulse 1.8s ease-in-out infinite;
+}
+
+.loading-title {
+  margin: 0;
+  font-size: 1.6rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text);
+}
+
+.loading-spinner {
+  width: 48px;
+  height: 48px;
+  margin: 8px 0;
+}
+
+.spinner-ring {
+  width: 100%;
+  height: 100%;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spinner-spin 0.8s linear infinite;
+}
+
+.loading-subtitle {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+}
+
+@keyframes spinner-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes loading-pulse {
+  0%, 100% { transform: scale(1);   opacity: 1; }
+  50%       { transform: scale(1.1); opacity: 0.8; }
+}
+
+/* =====================================================
+   Error Screen
+   ===================================================== */
+
+#error-screen {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: linear-gradient(135deg, #f8fbff 0%, var(--bg) 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#error-screen.hidden {
+  display: none;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  text-align: center;
+  max-width: 380px;
+  padding: 40px 32px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-md);
+}
+
+.error-icon {
+  font-size: 2.8rem;
+}
+
+.error-title {
+  margin: 0;
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.error-message {
+  margin: 0;
+  font-size: 0.95rem;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.error-retry-btn {
+  margin-top: 8px;
+  padding: 12px 28px;
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-strong) 100%);
+  color: white;
+  border: none;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
+}
+
+.error-retry-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(79, 70, 229, 0.35);
 }
