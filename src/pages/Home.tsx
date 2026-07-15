@@ -1,0 +1,75 @@
+import { useEffect, useState } from "react";
+
+import JobCard from "../components/JobCard";
+import { fetchJobs } from "../api/jobs";
+import type { Job } from "../types";
+
+export default function Home() {
+  const [jobs, setJobs] = useState<Job[]>([]);
+  const [tags, setTags] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function loadJobs() {
+      try {
+        setLoading(true);
+        setError("");
+
+        const data = await fetchJobs();
+
+        setJobs(data.jobs);
+        setTags(data.tags);
+      } catch (err) {
+        setError("Failed to load jobs. Please try again.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadJobs();
+  }, []);
+
+  if (loading) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">Loading jobs...</p>
+      </main>
+    );
+  }
+
+  if (error) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-6">
+          <p className="text-red-600">{error}</p>
+        </div>
+      </main>
+    );
+  }
+
+  if (jobs.length === 0) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <p className="text-gray-500">No jobs found.</p>
+      </main>
+    );
+  }
+
+  return (
+    <main className="min-h-screen bg-gray-50">
+      <div className="mx-auto max-w-6xl p-6">
+        <h1 className="mb-6 text-3xl font-bold">
+          Remote Developer Jobs
+        </h1>
+
+        <div className="grid gap-4">
+          {jobs.map((job) => (
+            <JobCard key={job.id} job={job} />
+          ))}
+        </div>
+      </div>
+    </main>
+  );
+}
