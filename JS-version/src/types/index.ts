@@ -19,6 +19,8 @@ export interface FilterState {
   tags: string[];
 }
 
+
+
 export interface JobModelState {
   jobs: Job[];
   tagOptions: string[];

@@ -8,6 +8,7 @@ const API_URL = "https://remoteok.com/api";
 export const JobService = {
   async fetchJobs(): Promise<Job[]> {
     try {
+;
       const response = await fetch(API_URL);
       const data: any[] = await response.json();
       return data.filter((job) => job.id) as Job[];
@@ -15,5 +16,6 @@ export const JobService = {
       console.error("Error fetching jobs:", error);
       throw error;
     }
+
   },
 };

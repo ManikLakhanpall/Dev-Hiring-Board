@@ -449,8 +449,11 @@ body.filters-open .filter-backdrop {
 #loading-screen {
   position: fixed;
   inset: 0;
-  z-index: 100;
-  background: linear-gradient(135deg, #f8fbff 0%, var(--bg) 100%);
+  width: 300px;
+  height: 300px;
+
+  z-index: 100000;
+  background: red;
   display: flex;
   align-items: center;
   justify-content: center;

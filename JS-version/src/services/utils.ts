@@ -86,9 +86,12 @@ export function filterBySearch(jobsToSearch: Job[], searchValue: string): Job[] 
  * @returns {Function}
  */
 export function debounce<T extends (...args: any[]) => void>(fn: T, wait: number): (...args: Parameters<T>) => void {
-  let timer: ReturnType<typeof setTimeout>;
+   timer: ReturnType<typeof setTimeout>;
+
   return function (this: any, ...args: Parameters<T>) {
     clearTimeout(timer);
-    timer = setTimeout(() => fn.apply(this, args), wait);
+    timer = setTimeout(function(){
+      fn(args)
+    } , wait);
   };
 }
