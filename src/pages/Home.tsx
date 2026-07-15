@@ -1,35 +1,8 @@
-import { useEffect, useState } from "react";
-
 import JobCard from "../components/JobCard";
-import { fetchJobs } from "../api/jobs";
-import type { Job } from "../types";
+import { useJobs } from "../context/JobsContext";
 
 export default function Home() {
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [tags, setTags] = useState<string[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    async function loadJobs() {
-      try {
-        setLoading(true);
-        setError("");
-
-        const data = await fetchJobs();
-
-        setJobs(data.jobs);
-        setTags(data.tags);
-      } catch (err) {
-        setError("Failed to load jobs. Please try again.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    loadJobs();
-  }, []);
+  const { jobs, loading, error } = useJobs();
 
   if (loading) {
     return (
