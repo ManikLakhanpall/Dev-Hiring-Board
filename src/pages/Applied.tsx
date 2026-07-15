@@ -1,8 +1,23 @@
 import JobCard from "../components/JobCard";
+import SearchBar from "../components/SearchBar";
 import { useJobs } from "../context/JobsContext";
 
 export default function Applied() {
-  const { jobs, loading, appliedJobIds } = useJobs();
+  const { jobs, loading, appliedJobIds, error, searchQuery } = useJobs();
+
+  const appliedJobsList = jobs.filter((job) => {
+    const isApplied = appliedJobIds.includes(job.id);
+
+    return isApplied;
+  });
+
+  const filteredJobs = appliedJobsList.filter((job) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      job.position.toLowerCase().includes(q) ||
+      job.description.toLowerCase().includes(q)
+    );
+  });
 
   if (loading) {
     return (
@@ -12,22 +27,28 @@ export default function Applied() {
     );
   }
 
-  const appliedJobsList = jobs.filter((job) => {
-    const isApplied = appliedJobIds.includes(job.id);
-    
-    return isApplied;
-  });
+  if (error) {
+    return (
+      <main className="min-h-screen flex items-center justify-center">
+        <div className="rounded-lg border border-red-200 bg-red-50 p-6">
+          <p className="text-red-600">{error}</p>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="mx-auto max-w-6xl p-6">
-        <h1 className="mb-6 text-3xl font-bold">Applied Jobs</h1>
-
-        {appliedJobsList.length === 0 ? (
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Applied Jobs</h1>
+          <SearchBar />
+        </div>
+        {filteredJobs.length === 0 ? (
           <p className="text-gray-500">No applied jobs found.</p>
         ) : (
           <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {appliedJobsList.map((job) => (
+            {filteredJobs.map((job) => (
               <JobCard key={job.id} job={job} />
             ))}
           </div>

@@ -12,20 +12,20 @@ export default function JobCard({ job }: { job: Job }) {
 
   return (
     <>
-      <div className="flex h-full flex-col rounded-lg border bg-white p-4">
-        <h2 className="text-xl font-semibold line-clamp-2">
+      <div className="flex h-72 flex-col rounded-lg border bg-white p-4 shadow-sm transition-shadow hover:shadow-md">
+        <h2 className="text-xl font-semibold line-clamp-2 shrink-0">
           {job.position}
         </h2>
 
-        <p className="mt-2 text-gray-600">
+        <p className="mt-2 text-gray-600 shrink-0">
           {job.company}
         </p>
 
-        <p className="text-sm text-gray-500">
+        <p className="text-sm text-gray-500 shrink-0">
           {job.location}
         </p>
 
-        <div className="mt-3 flex flex-wrap gap-2">
+        <div className="mt-3 flex flex-wrap gap-2 flex-1 overflow-y-auto content-start pb-2">
           {job.tags?.slice(0, 5).map((tag) => (
             <span
               key={tag}

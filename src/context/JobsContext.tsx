@@ -20,6 +20,9 @@ interface JobsContextType {
 
   appliedJobIds: number[];
   toggleAppliedJob: (jobId: number) => void;
+
+  searchQuery: string;
+  setSearchQuery: (query: string) => void;
 }
 
 const JobsContext = createContext<JobsContextType | undefined>(undefined);
@@ -32,6 +35,7 @@ export function JobsProvider({ children }: { children: ReactNode }) {
 
   const [savedJobIds, setSavedJobIdsState] = useState<number[]>([]);
   const [appliedJobIds, setAppliedJobIdsState] = useState<number[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     // * 1. Initialize from local storage on mount
@@ -77,7 +81,7 @@ export function JobsProvider({ children }: { children: ReactNode }) {
     } else {
       newAppliedIds = [...appliedJobIds, jobId];
     }
-    
+
     setAppliedJobIdsState(newAppliedIds);
     setAppliedJobs(newAppliedIds);
   };
@@ -93,6 +97,8 @@ export function JobsProvider({ children }: { children: ReactNode }) {
         toggleSavedJob,
         appliedJobIds,
         toggleAppliedJob,
+        searchQuery,
+        setSearchQuery
       }}
     >
       {children}

@@ -1,8 +1,17 @@
 import JobCard from "../components/JobCard";
+import SearchBar from "../components/SearchBar";
 import { useJobs } from "../context/JobsContext";
 
 export default function Home() {
-  const { jobs, loading, error } = useJobs();
+  const { jobs, loading, error, searchQuery } = useJobs();
+
+  const filteredJobs = jobs.filter((job) => {
+    const q = searchQuery.toLowerCase();
+    return (
+      job.position.toLowerCase().includes(q) ||
+      job.description.toLowerCase().includes(q)
+    );
+  });
 
   if (loading) {
     return (
@@ -33,10 +42,13 @@ export default function Home() {
   return (
     <main className="min-h-screen bg-gray-50 max-w-screen">
       <div className="mx-auto max-w-6xl p-6">
-        <h1 className="mb-6 text-3xl font-bold">Remote Developer Jobs</h1>
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-3xl font-bold">Remote Developer Jobs</h1>
+          <SearchBar /> {/* 2. Add it here! */}
+        </div>
 
         <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {jobs.map((job) => (
+          {filteredJobs.map((job) => (
             <JobCard key={job.id} job={job} />
           ))}
         </div>
