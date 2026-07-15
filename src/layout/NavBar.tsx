@@ -6,7 +6,7 @@ export default function NavBar() {
       <nav className="max-w-6xl mx-auto flex justify-between items-center px-6 py-4">
         <NavLink
           to="/"
-          className="text-2xl font-bold text-indigo-600"
+          className="text-2xl font-bold text-indigo-600 shrink-0"
         >
           🚀 DevBoard
         </NavLink>

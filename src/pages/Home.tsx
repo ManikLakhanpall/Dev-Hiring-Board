@@ -25,19 +25,17 @@ export default function Home() {
   if (jobs.length === 0) {
     return (
       <main className="min-h-screen flex items-center justify-center">
-        <p className="text-gray-500">No jobs found.</p>
+        <p className="text-gray-500">No jobs found matching your search.</p>
       </main>
     );
   }
 
   return (
-    <main className="min-h-screen bg-gray-50">
+    <main className="min-h-screen bg-gray-50 max-w-screen">
       <div className="mx-auto max-w-6xl p-6">
-        <h1 className="mb-6 text-3xl font-bold">
-          Remote Developer Jobs
-        </h1>
+        <h1 className="mb-6 text-3xl font-bold">Remote Developer Jobs</h1>
 
-        <div className="grid gap-4">
+        <div className="grid sm:grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {jobs.map((job) => (
             <JobCard key={job.id} job={job} />
           ))}
